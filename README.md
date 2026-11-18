@@ -12,13 +12,52 @@ Hand the agent a recording ("make a demo of this with a voice-over") and it foll
 
 ## Install
 
-Cursor (personal skill):
+The repo is the skill: clone it into the skills folder your agent reads. The agent picks it up from the `description` in `SKILL.md` whenever you hand it a recording and ask for a demo, voice-over or clean-up.
+
+| Agent | Personal (all projects) | Project only (commit it with the repo) |
+|---|---|---|
+| Cursor | `~/.cursor/skills/demo-video-voiceover` | `.cursor/skills/demo-video-voiceover` |
+| Codex (CLI, IDE extension, app) | `~/.agents/skills/demo-video-voiceover` (older versions: `~/.codex/skills/`) | `.agents/skills/demo-video-voiceover` |
+| Claude Code | `~/.claude/skills/demo-video-voiceover` | `.claude/skills/demo-video-voiceover` |
 
 ```bash
+# Cursor
 git clone https://github.com/sps014/demo-video-voiceover ~/.cursor/skills/demo-video-voiceover
+# Codex
+git clone https://github.com/sps014/demo-video-voiceover ~/.agents/skills/demo-video-voiceover
+# Claude Code
+git clone https://github.com/sps014/demo-video-voiceover ~/.claude/skills/demo-video-voiceover
 ```
 
-Claude Code: clone into `~/.claude/skills/demo-video-voiceover` instead. Any agent that reads `SKILL.md` skills works the same way.
+Restart the agent (or start a new session) after installing. Update later with `git -C <that folder> pull`.
+
+### Codex
+
+Once installed, Codex lists the skill under `/skills`. Ask normally, or name it:
+
+```text
+$demo-video-voiceover make a client demo of ~/Desktop/recording.mov with a voice-over
+```
+
+Codex runs shell commands in a sandbox. Rendering needs `ffmpeg`, `uv` (which downloads packages on first run) and network access to Vertex AI for the voice, so allow network access for the session (for example `codex --sandbox workspace-write -c sandbox_workspace_write.network_access=true`) or approve the commands when asked.
+
+### Any other agent
+
+Any harness that can read files and run shell commands can use it, even without built-in skill support:
+
+1. Clone the repo anywhere, e.g. `~/skills/demo-video-voiceover`.
+2. Point the agent at it from its instructions file (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, a system prompt, ...):
+
+   ```markdown
+   ## Demo videos
+   When I share a screen recording and ask for a demo, voice-over or clean-up, read
+   ~/skills/demo-video-voiceover/SKILL.md and follow it. Its scripts are in
+   ~/skills/demo-video-voiceover/scripts/ and run with `uv run`.
+   ```
+
+3. Or, one-off, start the prompt with: "Read ~/skills/demo-video-voiceover/SKILL.md and follow it for this recording: ...".
+
+The agent needs to be able to view images (it reads contact sheets and sync frames to map the recording and check the result). Text-only models can still render from a hand-written `edit_list.json` and `script.json`, but can't do the sync check.
 
 ## Requirements
 
